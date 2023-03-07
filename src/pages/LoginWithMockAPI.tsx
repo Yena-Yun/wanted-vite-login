@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ParsedToken, User, UserInfo } from 'types/user';
 import { _secret } from 'utils/constants/token';
 import { users } from 'utils/mocks/user';
-import { LoginResponse } from '../types/login';
+import { ParsedToken, User, UserInfo } from 'types/user';
+import { LoginResponse } from 'types/login';
 
 const login = async (
   username: string,
