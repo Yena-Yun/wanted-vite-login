@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { _secret } from 'utils/constants/token';
 import { users } from 'utils/mocks/user';
 import { ParsedToken, User, UserInfo } from 'types/user';
@@ -36,9 +36,7 @@ const getUserInfo = async (token: string): Promise<UserInfo | null> => {
 const LoginWithMockAPI = () => {
   const [userInfo, setUserInfo] = useState<UserInfo>({ name: '' });
 
-  const loginSubmitHandler = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const loginSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
