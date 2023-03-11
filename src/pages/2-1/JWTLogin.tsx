@@ -1,4 +1,4 @@
-import { getUserInfo, login } from 'api/login';
+import { getCurrentUserInfoWithToken, loginWithToken } from 'api/login';
 import { useState, FormEvent } from 'react';
 import { UserInfo } from 'types/user';
 
@@ -10,14 +10,20 @@ export const JWTLogin = () => {
 
     const formData = new FormData(e.currentTarget);
 
-    const loginRes = {
+    const loginPayload = {
       username: formData.get('username') as string,
       password: formData.get('password') as string,
     };
 
-    const loginResponseRes = await login(loginRes);
+    // 통신 이후의 결과값에 커서 올리면 타입 나오도록
+    const loginResult = await loginWithToken(loginPayload);
 
-    const userInfoRes = await getUserInfo(loginResponseRes);
+    // 통신 실패일 경우 꼭 예외 처리
+    if (loginResult.result === 'fail') return;
+
+    const userInfoRes = await getCurrentUserInfoWithToken(
+      loginResult.access_token
+    );
 
     setUserInfo(userInfoRes);
   };

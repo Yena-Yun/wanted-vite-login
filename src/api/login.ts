@@ -2,6 +2,7 @@ import { LoginRequest, LoginResultWithToken } from 'types/login';
 import { User, UserInfo } from 'types/user';
 import { BASE_URL } from './const';
 
+// 반환값 타입 반드시 지정 + 타입에 맞는 구체적인 반환값 반환
 export const loginWithToken = async (
   args: LoginRequest
 ): Promise<LoginResultWithToken> => {
@@ -41,6 +42,8 @@ export const getCurrentUserInfoWithToken = async (
 
   if (getUserRes.ok) {
     const userResponseData = await getUserRes.json();
+
+    // 반환값이 명확하도록 적절히 가공해서 반환
     return userResponseData.userInfo.name;
   }
 
