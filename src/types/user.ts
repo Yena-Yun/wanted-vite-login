@@ -8,7 +8,7 @@ export interface User {
   userInfo: UserInfo;
 }
 
-export interface ParsedToken {
+export interface Token {
   secret: string;
   user: UserInfo;
 }
