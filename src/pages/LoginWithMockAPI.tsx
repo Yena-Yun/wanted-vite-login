@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { _secret } from 'utils/constants/token';
 import { users } from 'utils/mocks/user';
-import { ParsedToken, User, UserInfo } from 'types/user';
+import { Token, User, UserInfo } from 'types/user';
 import { LoginResponse } from 'types/login';
 
 const login = async (
@@ -22,10 +22,13 @@ const login = async (
 
 /* async 함수의 반환값은 Promise */
 const getUserInfo = async (token: string): Promise<UserInfo | null> => {
-  const parsedToken: ParsedToken = JSON.parse(token);
+  const parsedToken: Token = JSON.parse(token);
 
+  // token에 secret이 없거나 (서버의) _secret과 다르면 null 반환 후 종료
   if (!parsedToken.secret || parsedToken.secret !== _secret) return null;
 
+  // token이 올바른 경우
+  // DB에서 userInfo의 name과 token의 username이 같은 데이터를 찾아 반환
   const loggedUser: User | undefined = users.find((user: User) => {
     if (user.userInfo.name === parsedToken.user.name) return user;
   });
@@ -41,9 +44,8 @@ const LoginWithMockAPI = () => {
 
     const formData = new FormData(event.currentTarget);
 
-    console.log(formData); // 그냥 formDate로는 브라우저 콘솔에서 안에 있는 값 알 수 없음
+    console.log(formData); // 그냥 formDate로는 FormData {} 출력 - formData에서 사용 가능한 메서드 알 수 있음
     console.log(formData.get('username')); // .get() 메서드에 e.currentTarget.name을 인자로 전달해야 해당 입력값 알 수 있음
-    console.log(formData.entries()); // 또는 .entries() 메서드를 찍어보면 formDate로 뭘 할 수 있는지 다 알 수 있음
 
     // await: 이 코드의 반환값이 나오고 나서 다음 줄 실행
     const loginRes = await login(
@@ -51,18 +53,18 @@ const LoginWithMockAPI = () => {
       formData.get('password') as string
     );
 
-    // 얼리 리턴 패턴 (문제가 있으면 다음 줄을 실행하기 전 빨리 종료)
-    // login 함수에서 반환된 유저가 null이면 리턴
+    // 얼리 리턴 패턴 (문제가 있으면 다음 줄을 실행하기 이전에 종료)
+    // 반환된 값이 falsy이면(= 로그인에 실패하면) 종료
     if (!loginRes) return;
 
-    // 로그인에 성공하면 받은 token으로 userInfo 불러오기
+    // 로그인에 성공 시 반환된 결과값의 token으로 userInfo 받아오기
     const userInfo = await getUserInfo(loginRes.token);
 
-    // secret이 없거나 또는 틀리거나
-    // DB에서 name이 일치하는 유저가 없으면 리턴
+    // userInfo가 falsy(null)이면 얼리 리턴
     if (!userInfo) return;
 
-    // userInfo가 있으면 useState에 셋팅
+    // userInfo 받아오기에 성공하면
+    // jsx에서 사용할 수 있도록 전역의 setState에 전달
     setUserInfo(userInfo);
   };
 
