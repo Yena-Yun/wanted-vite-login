@@ -1,6 +1,6 @@
+import { useState, FormEvent } from 'react';
 import { getCurrentUserInfo, login } from 'api/login';
 import { getAccessTokenFromLocalStorage } from 'hooks/tokenLocalStorageHandler';
-import { useState, FormEvent } from 'react';
 import { UserInfo } from 'types/user';
 
 export const JWTLoginWithLocalStorage = () => {
@@ -18,17 +18,15 @@ export const JWTLoginWithLocalStorage = () => {
 
     const loginResult = await login(loginPayload);
 
-    if (loginResult === 'success') {
-      const accessToken = getAccessTokenFromLocalStorage();
+    // 통신 실패 시 얼리 리턴
+    if (loginResult === 'fail') return;
 
-      if (!accessToken) return;
+    // 토큰을 스토리지에서 가져오는 로직을 getCurrentUserInfo 내에서 진행
+    const userInfoRes = await getCurrentUserInfo();
 
-      const userInfoRes = await getCurrentUserInfo(accessToken);
+    if (!userInfoRes) return;
 
-      if (!userInfoRes) return;
-
-      setUserInfo(userInfoRes);
-    }
+    setUserInfo(userInfoRes);
   };
 
   return (

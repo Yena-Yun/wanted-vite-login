@@ -1,4 +1,7 @@
-import { saveAccessTokenToLocalStorage } from 'hooks/tokenLocalStorageHandler';
+import {
+  getAccessTokenFromLocalStorage,
+  saveAccessTokenToLocalStorage,
+} from 'hooks/tokenLocalStorageHandler';
 import { LoginRequest, LoginResult, LoginResultWithToken } from 'types/login';
 import { User, UserInfo } from 'types/user';
 import { BASE_URL } from './const';
@@ -70,10 +73,10 @@ export const login = async (args: LoginRequest): Promise<LoginResult> => {
   return 'fail';
 };
 
-export const getCurrentUserInfo = async (
-  token: string
-): Promise<UserInfo | null> => {
-  const getUserInfoRes = await fetch(`${BASE_URL}/profile`, {
+export const getCurrentUserInfo = async (): Promise<UserInfo | null> => {
+  const token = getAccessTokenFromLocalStorage();
+
+  const userInfoRes = await fetch(`${BASE_URL}/profile`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -81,10 +84,12 @@ export const getCurrentUserInfo = async (
     },
   });
 
-  if (getUserInfoRes.ok) {
-    const userInfoRes = await getUserInfoRes.json();
+  if (userInfoRes.ok) {
+    // const userResponse = await userInfoRes.json();
+    // return userResponse.userInfo.name;
 
-    return userInfoRes.userInfo.name;
+    // 또는
+    return userInfoRes.json() as Promise<UserInfo>; // ~.json() 로직 뒤에 as Promise<반환값 타입>으로 단언하면 앞에 await를 붙인 것으로 인식 + 바로 해당 반환 타입으로 반환
   }
 
   return null;
