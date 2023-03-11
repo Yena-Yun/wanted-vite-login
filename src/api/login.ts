@@ -5,6 +5,7 @@ import {
 import { LoginRequest, LoginResult, LoginResultWithToken } from 'types/login';
 import { User, UserInfo } from 'types/user';
 import { BASE_URL } from './const';
+import { fetchClientWithToken } from './fetchClientWithToken';
 
 // 반환값 타입 반드시 지정 + 타입에 맞는 구체적인 반환값 반환
 export const loginWithToken = async (
@@ -36,12 +37,15 @@ export const loginWithToken = async (
 export const getCurrentUserInfoWithToken = async (
   token: string
 ): Promise<UserInfo | null> => {
-  const getUserRes = await fetch(`${BASE_URL}/profile`, {
+  // const getUserRes = await fetch(`${BASE_URL}/profile`, {
+  //   method: 'GET',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // });
+  const getUserRes = await fetchClientWithToken(`${BASE_URL}/profile`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   if (getUserRes.ok) {
@@ -74,14 +78,8 @@ export const login = async (args: LoginRequest): Promise<LoginResult> => {
 };
 
 export const getCurrentUserInfo = async (): Promise<UserInfo | null> => {
-  const token = getAccessTokenFromLocalStorage();
-
-  const userInfoRes = await fetch(`${BASE_URL}/profile`, {
+  const userInfoRes = await fetchClientWithToken(`${BASE_URL}/profile`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   if (userInfoRes.ok) {
