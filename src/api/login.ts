@@ -1,4 +1,5 @@
-import { LoginRequest, LoginResultWithToken } from 'types/login';
+import { saveAccessTokenToLocalStorage } from 'hooks/tokenLocalStorageHandler';
+import { LoginRequest, LoginResult, LoginResultWithToken } from 'types/login';
 import { User, UserInfo } from 'types/user';
 import { BASE_URL } from './const';
 
@@ -45,6 +46,45 @@ export const getCurrentUserInfoWithToken = async (
 
     // 반환값이 명확하도록 적절히 가공해서 반환
     return userResponseData.userInfo.name;
+  }
+
+  return null;
+};
+
+export const login = async (args: LoginRequest): Promise<LoginResult> => {
+  const loginResponseRes = await fetch(`${BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(args),
+  });
+
+  if (loginResponseRes.ok) {
+    const loginResponseData = await loginResponseRes.json();
+
+    saveAccessTokenToLocalStorage(loginResponseData.access_token);
+    return 'success';
+  }
+
+  return 'fail';
+};
+
+export const getCurrentUserInfo = async (
+  token: string
+): Promise<UserInfo | null> => {
+  const getUserInfoRes = await fetch(`${BASE_URL}/profile`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (getUserInfoRes.ok) {
+    const userInfoRes = await getUserInfoRes.json();
+
+    return userInfoRes.userInfo.name;
   }
 
   return null;

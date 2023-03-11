@@ -24,3 +24,5 @@ export type LoginResultWithToken =
       result: 'fail';
       access_token: null;
     };
+
+export type LoginResult = 'success' | 'fail';
