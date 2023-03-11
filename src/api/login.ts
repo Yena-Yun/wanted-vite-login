@@ -1,7 +1,10 @@
-import { User } from 'types/user';
+import { LoginRequest, LoginResultWithToken } from 'types/login';
+import { User, UserInfo } from 'types/user';
 import { BASE_URL } from './const';
 
-export const login = async (args: Omit<User, 'userInfo'>) => {
+export const loginWithToken = async (
+  args: LoginRequest
+): Promise<LoginResultWithToken> => {
   const loginResponseRes = await fetch(`${BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
@@ -11,28 +14,34 @@ export const login = async (args: Omit<User, 'userInfo'>) => {
   });
 
   if (loginResponseRes.ok) {
-    return loginResponseRes.json();
+    const { access_token } = await loginResponseRes.json();
+
+    return {
+      result: 'success',
+      access_token,
+    };
   }
 
-  return null;
+  return {
+    result: 'fail',
+    access_token: null,
+  };
 };
 
-export const getUserInfo = async ({
-  access_token,
-}: {
-  access_token: string;
-}) => {
-  const userInfoRes = await fetch(`${BASE_URL}/profile`, {
+export const getCurrentUserInfoWithToken = async (
+  token: string
+): Promise<UserInfo | null> => {
+  const getUserRes = await fetch(`${BASE_URL}/profile`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${access_token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
-  if (userInfoRes.ok) {
-    const userInfo = await userInfoRes.json();
-    return userInfo.userInfo.name;
+  if (getUserRes.ok) {
+    const userResponseData = await getUserRes.json();
+    return userResponseData.userInfo.name;
   }
 
   return null;
